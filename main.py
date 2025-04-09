@@ -6,13 +6,13 @@ import torch
 
 if __name__ == "__main__":
     import os
-    os.chdir(".....") # Change to the directory of the project
+    # os.chdir(".....") # Change to the directory of the project
     #Converting cif to txt
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device is: ", device)
     print("Training started")
     # run_llm(device)
     # run_supervised()
-    # train_combined()
+    train_combined()
     print("Training completed successfully")
     predict_combined()

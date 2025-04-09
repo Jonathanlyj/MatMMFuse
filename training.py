@@ -13,6 +13,7 @@ from sklearn.manifold import TSNE
 ##Torch imports
 import torch.nn.functional as F
 import torch
+from cgcnn import CGCNN
 from torch_geometric.data import DataLoader, Dataset
 from torch_geometric.nn import DataParallel
 import torch_geometric.transforms as T
@@ -33,10 +34,10 @@ from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 
 ##Matdeeplearn imports
 
-from matdeeplearn import models
-import matdeeplearn.process as process
-import matdeeplearn.training as training
-from matdeeplearn.models.utils import model_summary
+import cgcnn
+import process
+import training
+
 
 ################################################################################
 #  Training functions
@@ -52,16 +53,10 @@ def train(model, optimizer, loader, loss_method, rank):
     for data in loader:
         data = data.to(rank)
         optimizer.zero_grad()
-        if type(model).__name__ == "GraphJepa":
-            target_x, target_y= model(data)
-            loss = criterion(target_x, target_y)
-            output_size= len(target_y)
-            loss_all += loss.detach() * output_size
-        else:
-            output,_ = model(data)
-            loss = getattr(F, loss_method)(output, data.y)
-            output_size = output.size(0)
-            loss_all += loss.detach() * output_size
+        output,_ = model(data)
+        loss = getattr(F, loss_method)(output, data.y)
+        output_size = output.size(0)
+        loss_all += loss.detach() * output_size
 
         loss.backward()
         # clip = 10
@@ -81,17 +76,10 @@ def evaluate(loader, model, loss_method, rank, out=False):
     for data in loader:
         data = data.to(rank)
         with torch.no_grad():
-            if type(model).__name__ == "GraphJepaE3":
-                criterion = torch.nn.SmoothL1Loss()
-                target_x, target_y = model(data)
-                loss = criterion(target_x, target_y)
-                output_size = len(target_y)
-                loss_all += loss.detach() * output_size
-            else:
-                output,_ = model(data)
-                loss = getattr(F, loss_method)(output, data.y)
-                output_size = output.size(0)
-                loss_all += loss.detach() * output_size
+            output,_ = model(data)
+            loss = getattr(F, loss_method)(output, data.y)
+            output_size = output.size(0)
+            loss_all += loss.detach() * output_size
             # output = model(data)
             # loss = getattr(F, loss_method)(output, data.y)
             # loss_all += loss * output.size(0)
@@ -279,8 +267,19 @@ def model_setup(
     print_model=True,
 ):
 
-    model = getattr(models, model_name)(
-        data=dataset, **(model_params if model_params is not None else {})
+    model = CGCNN(
+        data=dataset,
+        dim1=model_params.get("dim1", 100),
+        dim2=model_params.get("dim2", 150),
+        pre_fc_count=model_params.get("pre_fc_count", 1),
+        gc_count=model_params.get("gc_count", 4),
+        post_fc_count=model_params.get("post_fc_count", 3),
+        pool=model_params.get("pool", "global_mean_pool"),
+        pool_order=model_params.get("pool_order", "early"),
+        batch_norm=model_params.get("batch_norm", "True"),
+        batch_track_stats=model_params.get("batch_track_stats", "True"),
+        act=model_params.get("act", "relu"),
+        dropout_rate=model_params.get("dropout_rate", 0.0)
     ).to(rank)
 
 
@@ -304,8 +303,9 @@ def model_setup(
             model, device_ids=[rank], find_unused_parameters=True
         )
         # model = DistributedDataParallel(model, device_ids=[rank], find_unused_parameters=False)
-    if print_model == True and rank in (0, "cpu", "cuda"):
-        model_summary(model)
+        if print_model == True and rank in (0, "cpu", "cuda"):
+          print(model)  
+            
     return model
 
 
@@ -692,9 +692,6 @@ class CnnRegressor(torch.nn.Module):
 #             y_pred= y_pred.cuda()
 #             loss = loss_fn(y_pred, ybatch)
 #             train_loss.append(float(loss))
-#             optimizer.zero_grad()
-#             loss.backward()
-#             optimizer.step()
 #         print(f'Finished epoch {epoch}, learning rate {scheduler.get_lr()}loss {np.mean(train_loss)}')
 
 #     model_ann.eval()
@@ -1030,7 +1027,7 @@ def predict(data_path, training_parameters, model_parameters, job_parameters, lo
         )
     model = saved["full_model"]
     model = model.to(rank)
-    model_summary(model)
+    print(model)
 
     ##Get predictions
     time_start = time.time()
@@ -1687,7 +1684,7 @@ def analysis(
     else:
         saved = torch.load(model_path, map_location=torch.device("cuda"))
     model = saved["full_model"]
-    model_summary(model)
+    print(model)
 
     print(dataset)
 

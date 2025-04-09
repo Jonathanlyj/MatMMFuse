@@ -18,7 +18,7 @@ from torch_geometric.data import DataLoader, Dataset, Data, InMemoryDataset
 from torch_geometric.utils import dense_to_sparse, degree, add_self_loops
 import torch_geometric.transforms as T
 from torch_geometric.utils import degree
-# from jepa.transforms import GraphJEPAPartitionTransform, PositionalEncodingTransform
+
 
 ################################################################################
 # Data splitting
@@ -93,53 +93,6 @@ def get_dataset(data_path, target_index, reprocess="False", processing_args=None
 
     transforms = GetY(index=target_index)
     pre_transform= None
-
-    if model_name =="GraphJepa":
-            metis_args = {}
-            metis_args["metis_n_patches"] = 32
-            metis_args["metis_enable"] = True
-            metis_args["metis_online"] = True
-            metis_args["metis_drop_rate"] = 0.3
-            metis_args["metis_num_hops"] = 1
-            metis_args["patch_rw_dim"] = 8
-            metis_args["patch_num_diff"] = -1
-            metis_args["jepa_enable"] = True
-            metis_args["jepa_num_context"] = 1
-            metis_args["jepa_num_targets"] = 4
-            metis_args["rw_dim"] = 8
-            metis_args["lap_dim"] = 0
-
-            if metis_args["metis_n_patches"] > 0:
-                _transform_train = GraphJEPAPartitionTransform(n_patches=metis_args["metis_n_patches"],
-                                                               metis=metis_args["metis_enable"],
-                                                               drop_rate=metis_args["metis_drop_rate"],
-                                                               num_hops=metis_args["metis_num_hops"],
-                                                               is_directed=False,
-                                                               patch_rw_dim=metis_args["patch_rw_dim"],
-                                                               patch_num_diff=metis_args["patch_num_diff"],
-                                                               num_context=metis_args["jepa_num_context"],
-                                                               num_targets=metis_args["jepa_num_targets"],
-                                                               index=target_index
-                                                               )
-
-                _transform_eval = GraphJEPAPartitionTransform(n_patches=metis_args["metis_n_patches"],
-                                                              metis=metis_args["metis_enable"],
-                                                              drop_rate=0.0,
-                                                              num_hops=metis_args["metis_num_hops"],
-                                                              is_directed=False,
-                                                              patch_rw_dim=metis_args["patch_rw_dim"],
-                                                              patch_num_diff=metis_args["patch_num_diff"],
-                                                              num_context=metis_args["jepa_num_context"],
-                                                              num_targets=metis_args["jepa_num_targets"],
-                                                              index=target_index
-                                                              )
-                transform_train = _transform_train
-                transform_eval = _transform_eval
-
-                transforms = transform_train
-                pre_transform = PositionalEncodingTransform(rw_dim=metis_args["rw_dim"],
-                                                             lap_dim=metis_args["lap_dim"])
-
     if os.path.exists(data_path) == False:
         print("Data not found in:", data_path)
         sys.exit()
