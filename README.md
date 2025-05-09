@@ -82,11 +82,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 If you use this code in your research, please cite:
 
 ```bibtex
-@software{matmmfuse2024,
-  author = {Your Name},
-  title = {MatMMFuse: Multi-Modal Fusion for Materials Property Prediction},
-  year = {2024},
-  publisher = {GitHub},
-  url = {https://github.com/yourusername/MatMMFuse}
+@misc{bhattacharya2025matmmfusemultimodalfusionmodel,
+      title={MatMMFuse: Multi-Modal Fusion model for Material Property Prediction}, 
+      author={Abhiroop Bhattacharya and Sylvain G. Cloutier},
+      year={2025},
+      eprint={2505.04634},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2505.04634}, 
 }
 ``` 
