@@ -55,7 +55,7 @@ Processing:
     #Path to target file within data_path
     target_path: "targets.csv"
     #Method of obtaining atom idctionary: available:(provided, default, blank, generated)
-    dictionary_source: "default"   
+    dictionary_source: "generated"   
     #Path to atom dictionary file within data_path
     dictionary_path: "atom_dict.json"     
     #Format of data files (limit to those supported by ASE)

@@ -287,6 +287,8 @@ def process_data(data_path, processed_path, processing_args):
             data.ase = ase_crystal
         
         ##Compile structure sizes (# of atoms) and elemental compositions
+        length = []
+        elements = []
         if index == 0:
             length = [len(ase_crystal)]
             elements = [list(set(ase_crystal.get_chemical_symbols()))]

@@ -13,6 +13,6 @@ if __name__ == "__main__":
     print("Training started")
     # run_llm(device)
     # run_supervised()
-    train_combined()
+    model_file = train_combined()
     print("Training completed successfully")
-    predict_combined()
+    predict_combined(model_path = model_file)

@@ -2,6 +2,7 @@ import datetime
 import itertools
 import torch.nn as nn
 from transformers import AdamW, get_cosine_schedule_with_warmup
+# from transformers.optimization import AdamW, get_cosine_schedule_with_warmup
 from transformers import AutoModel, AutoTokenizer
 from utils import summarize_dataset
 import process as process
@@ -21,9 +22,9 @@ import random
 import yaml
 
 def get_data(config):
-    text_folder = "/home/abhibhatt/Pycharm_Projects/Data_MatMMFuse/abo3_txt"  # Path to text files
-    csv_file = "/home/abhibhatt/Pycharm_Projects/Data_MatMMFuse/targets.csv"  # Path to the CSV file
-    cif_data_path_new = "/home/abhibhatt/Pycharm_Projects/Data_MatMMFuse/abo3" # Path to the CIF file
+    text_folder = "/scratch/yll6162/MatMMFuse/data/text_data"  # Path to text files
+    csv_file = "/scratch/yll6162/MatMMFuse/targets.csv"  # Path to the CSV file
+    cif_data_path_new = "/scratch/yll6162/MatMMFuse/data/bulk_data" # Path to the CIF file
     job_parameters, training_parameters, model_parameters = config["Job"]['Training'], config["Training"],config["Models"]["CGCNN_demo"]
     processing_parameters = config["Processing"]
     supervised_model = SupervisedModel(training_parameters, model_parameters,job_parameters,processing_parameters)
@@ -51,7 +52,7 @@ def get_data(config):
     return text, batched_list_cifs_filter_sorted, labels, dataset_cif, supervised_model
 
 
-def predict_combined():
+def predict_combined(model_path):
     print("Predicting")
     with open( "./config.yml", "r") as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.FullLoader)
@@ -60,7 +61,11 @@ def predict_combined():
     train_dataset_combined, test_dataset_combined = split_data(dataset_combined, train_ratio=0.01, random_seed=42)
     train_dataloader_combined = DataLoader(train_dataset_combined, batch_size=8, shuffle=True)
     test_dataloader_combined = DataLoader(test_dataset_combined, batch_size=8, shuffle=False)
-    checkpoint_path = './Results/Checkpoint/checkpoint_matbert_fe_5_2025-02-07-0216.pth'
+    # checkpoint_path = 'Results/Checkpoint/checkpoint_matbert_0.5data_fe_10_2025-09-04-2233.pth'
+    checkpoint_path = None
+    if model_path is not None:
+        checkpoint_path = model_path
+    
     # Load the checkpoint
     checkpoint = torch.load(checkpoint_path)
     transformer_name = "allenai/scibert_scivocab_uncased"
@@ -105,7 +110,7 @@ def train_combined():
     # Combined model
     model = CombinedEmbeddingModel(transformer_name, supervised_model, supervised_dim=150)
       
-    num_epochs =10
+    num_epochs = 10
     # Optimizer and loss function
     # optimizer = optim.Adam(model.parameters(), lr=5e-5)
     optimizer = AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
@@ -118,8 +123,18 @@ def train_combined():
         num_training_steps=total_steps
     )
     # # Training loop
+    # # Check which parameters are trainable
+    # print("\n===== Trainable Parameters =====")
+    # for name, param in model.named_parameters():
+    #     if param.requires_grad:
+    #         print(f"TRAINABLE: {name} | Shape: {param.shape}")
+    #     else:
+    #         print(f"FROZEN:    {name}")
+    # print(f"Total trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}")
+    # print("================================\n")
 
     model.train
+    model_file = None
     for epoch in range(num_epochs+1):  # Number of epochs
         total_loss = 0
         for train_batch in train_dataloader_combined:
@@ -148,9 +163,11 @@ def train_combined():
                 "loss": loss.item(),
             }
             fname =datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
-            torch.save(checkpoint, f"./Results/Checkpoint/checkpoint_matbert_0.5data_fe_{epoch}_{fname}.pth")
+            model_file = f"./Results/Checkpoint/checkpoint_matbert_0.5data_fe_{epoch}_{fname}.pth"
+            torch.save(checkpoint, model_file)
             print(f"Checkpoint saved for epoch {epoch}")
+    
 
-
+    return model_file
     
 
