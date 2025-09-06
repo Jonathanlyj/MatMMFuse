@@ -163,7 +163,7 @@ def train_combined():
                 "loss": loss.item(),
             }
             fname =datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
-            model_file = f"./Results/Checkpoint/checkpoint_matbert_0.5data_fe_{epoch}_{fname}.pth"
+            model_file = f"/data/yll6162/matmmfuse/modelcheckpoint_matbert_0.5data_fe_{epoch}_{fname}.pth"
             torch.save(checkpoint, model_file)
             print(f"Checkpoint saved for epoch {epoch}")
     

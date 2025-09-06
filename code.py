@@ -737,7 +737,7 @@ def train_combined():
     model = CombinedEmbeddingModel(transformer_name, supervised_model, supervised_dim=150)
  
     if load_model: # Change for finetuning
-        checkpoint_path = './Results/Checkpoint/checkpoint_matbert_fe_5_2025-02-07-0216.pth'
+        checkpoint_path = '/data/yll6162/matmmfuse/modelcheckpoint_matbert_fe_5_2025-02-07-0216.pth'
         # Load the checkpoint
         checkpoint = torch.load(checkpoint_path)
         # Load the model state_dict
@@ -786,7 +786,7 @@ def train_combined():
             #         "loss": loss.item(),
             #     }
                 # fname =datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
-                # torch.save(checkpoint, f"./Results/Checkpoint/checkpoint_matbert_0.5data_fe_{epoch}_{fname}.pth")
+                # torch.save(checkpoint, f"/data/yll6162/matmmfuse/modelcheckpoint_matbert_0.5data_fe_{epoch}_{fname}.pth")
                 # print(f"Checkpoint saved for epoch {epoch}")
 
  
