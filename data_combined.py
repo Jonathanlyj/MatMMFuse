@@ -37,7 +37,7 @@ def load_data(text_folder, csv_file):
                 # Match the text file with its property in the CSV
                 property_row = property_data[property_data["Filename"] == file_name]
                 if not property_row.empty:
-                    data.append({"text": text, "filename": int(file_name), "label": property_row.iloc[0][
+                    data.append({"text": text, "filename": file_name, "label": property_row.iloc[0][
                         "Property"]})  # Replace "Property" with your property column name
         return pd.DataFrame(data)
 

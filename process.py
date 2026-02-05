@@ -280,6 +280,7 @@ def process_data(data_path, processed_path, processing_args):
                 print(f"File path: {file_path}")
                 continue
             else:
+                # print(file_path)
                 ase_crystal = ase.io.read(file_path)
                 data.ase = ase_crystal
         else:
