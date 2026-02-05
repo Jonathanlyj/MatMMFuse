@@ -51,8 +51,8 @@ Processing:
     #Whether to use "inmemory" or "large" format for pytorch-geometric dataset. Reccomend inmemory unless the dataset is too large
     dataset_type: "inmemory"  
     #Path to data files
-    train_folder: "/data/yll6162/matmmfuse/data/Tc_supercon/train"
-    test_folder: "/data/yll6162/matmmfuse/data/Tc_supercon/test"
+    train_folder: "./data/Tc_supercon/train"
+    test_folder: "./data/Tc_supercon/test"
     #Path to target file within data_path
     target_path: "targets_Tc_supercon.csv"
     #Method of obtaining atom idctionary: available:(provided, default, blank, generated)

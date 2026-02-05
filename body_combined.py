@@ -130,7 +130,7 @@ def predict_combined(model_path, prop = "Tc_supercon", logger=None):
 
     mae = mean_absolute_error(all_labels, all_preds)
     if logger:
-        logger.info(f"Test MAE (sklearn): {mae:.6f}")
+        logger.info(f"Test MAE (sklearn): {mae:.12f}")
 
 
 def train_combined(prop="Tc_supercon", logger=None, timestamp=None):
@@ -198,7 +198,7 @@ def train_combined(prop="Tc_supercon", logger=None, timestamp=None):
             }
             # fname = datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
             fname = timestamp if timestamp else datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
-            model_file = f"/data/yll6162/matmmfuse/model/checkpoint_scibert_cgcnn_mbj_bandgap_{epoch}_{fname}.pth"
+            model_file = f"./model/checkpoint_scibert_cgcnn_mbj_bandgap_{epoch}_{fname}.pth"
             torch.save(checkpoint, model_file)
             if logger:
                 logger.info(f"Checkpoint saved for epoch {epoch}")
@@ -211,7 +211,7 @@ def train_combined(prop="Tc_supercon", logger=None, timestamp=None):
         "loss": loss.item(),
     }
     fname = timestamp if timestamp else datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
-    model_file = f"/data/yll6162/matmmfuse/model/checkpoint_scibert_cgcnn_mbj_bandgap_final_{num_epochs}_{fname}.pth"
+    model_file = f"./model/checkpoint_scibert_cgcnn_mbj_bandgap_final_{num_epochs}_{fname}.pth"
     torch.save(final_checkpoint, model_file)
     if logger:
         logger.info(f"Final model saved after {num_epochs} epochs")
